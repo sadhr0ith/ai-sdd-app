@@ -329,13 +329,14 @@ const getSystemInstruction = (type: SpecType) => {
 export const generateSpecStream = async (
   prompt: string, 
   type: SpecType, 
+  apiKey: string,
   onChunk: (text: string) => void
 ): Promise<string> => {
-  if (!process.env.API_KEY) {
-    throw new Error("API Key is missing.");
+  if (!apiKey) {
+    throw new Error("API Key is missing. Please check your settings.");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: apiKey });
   // Using gemini-3-pro-preview for best adherence to complex system instructions and reasoning
   const model = 'gemini-3-pro-preview';
 

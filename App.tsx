@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { SpecType, SpecHistoryItem } from './types';
 import { generateSpecStream } from './services/gemini';
@@ -13,7 +14,7 @@ import {
   FileText, Server, Layout, ListChecks, Code2, Database, Workflow, Brain, 
   Terminal, Laptop, Save, Map, Moon, Sun, AlertCircle, Loader, TestTube2, 
   Container, ShieldCheck, Smartphone, RefreshCw, ArrowRightLeft, Layers,
-  Box, TableProperties, Network, Bot, Cpu
+  Box, TableProperties, Network, Bot, Cpu, Key, X
 } from 'lucide-react';
 
 // Definitions for the UI to explain technical terms to beginners
@@ -238,6 +239,55 @@ const EXAMPLES = [
   }
 ];
 
+// --- API KEY MODAL ---
+interface ApiKeyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (key: string) => void;
+}
+
+const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave }) => {
+  const [key, setKey] = useState('');
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col transition-colors duration-200">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Key className="w-5 h-5 text-amber-500" />
+            Ustawienia API Key
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Aplikacja wymaga klucza <strong>Gemini API</strong>. Klucz zostanie zapisany tylko w Twojej przeglądarce.
+          </p>
+          <input 
+            type="password" 
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+            placeholder="Wklej klucz (zaczyna się od AIza...)"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 mb-4"
+          />
+          <div className="flex justify-end space-x-3">
+             <Button variant="ghost" onClick={onClose}>Anuluj</Button>
+             <Button onClick={() => { onSave(key); onClose(); }} disabled={!key}>Zapisz</Button>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-400">
+             <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">Pobierz klucz z Google AI Studio</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -251,6 +301,7 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   
   // Dark mode state
   const [darkMode, setDarkMode] = useState(() => {
@@ -260,6 +311,31 @@ export default function App() {
     }
     return false;
   });
+  
+  // API Key management
+  const [apiKey, setApiKey] = useState<string>('');
+
+  useEffect(() => {
+    // 1. Check Env Var (Standard or Vite prefixed)
+    // @ts-ignore
+    const envKey = process.env.API_KEY; 
+    
+    // 2. Check Local Storage
+    const localKey = localStorage.getItem('spec_ai_key');
+
+    if (envKey && envKey.length > 5) {
+      setApiKey(envKey);
+    } else if (localKey) {
+      setApiKey(localKey);
+    }
+  }, []);
+
+  const handleSaveApiKey = (newKey: string) => {
+    if (newKey) {
+      localStorage.setItem('spec_ai_key', newKey);
+      setApiKey(newKey);
+    }
+  };
   
   // Draft state
   const [draftSaved, setDraftSaved] = useState(false);
@@ -344,6 +420,12 @@ export default function App() {
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
   const handleGenerate = async () => {
+    // API KEY CHECK
+    if (!apiKey) {
+      setShowApiKeyModal(true);
+      return;
+    }
+
     if (!prompt.trim()) {
       setInputError("Pole opisu nie może być puste.");
       return;
@@ -374,7 +456,7 @@ export default function App() {
     
     try {
       let finalContent = '';
-      await generateSpecStream(prompt, selectedType, (chunk) => {
+      await generateSpecStream(prompt, selectedType, apiKey, (chunk) => {
         setGeneratedContent(chunk);
         finalContent = chunk;
         if (bottomRef.current) {
@@ -544,6 +626,7 @@ export default function App() {
       
       <TutorialModal isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
       <InstallModal isOpen={showInstall} onClose={() => setShowInstall(false)} />
+      <ApiKeyModal isOpen={showApiKeyModal} onClose={() => setShowApiKeyModal(false)} onSave={handleSaveApiKey} />
 
       {sidebarOpen && (
         <div 
@@ -570,6 +653,15 @@ export default function App() {
           </div>
           
           <div className="flex items-center space-x-2">
+             <Button
+              variant="ghost"
+              onClick={() => setShowApiKeyModal(true)}
+              className={`${apiKey ? 'text-green-600 dark:text-green-400' : 'text-amber-500'} dark:hover:bg-gray-800`}
+              title="Ustawienia API Key"
+            >
+              <Key className="w-5 h-5" />
+            </Button>
+
             <Button
               variant="ghost"
               onClick={toggleDarkMode}
