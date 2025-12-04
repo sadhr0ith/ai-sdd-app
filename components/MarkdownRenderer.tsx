@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useId } from 'react';
 import { Copy, Check, Workflow, ExternalLink, AlertTriangle } from 'lucide-react';
+import mermaid from 'mermaid';
 
 interface MarkdownRendererProps {
   content: string;
@@ -28,15 +29,6 @@ const MermaidBlock: React.FC<{ code: string }> = ({ code }) => {
 
   useEffect(() => {
     const renderChart = async () => {
-      const mermaid = (window as any).mermaid;
-      if (!mermaid) {
-        // Retry once if mermaid isn't loaded yet
-        setTimeout(() => {
-           if ((window as any).mermaid) renderChart();
-        }, 500);
-        return;
-      }
-
       try {
         mermaid.initialize({ 
           startOnLoad: false, 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { SpecType, SpecHistoryItem } from './types';
 import { generateSpecStream } from './services/gemini';
@@ -7,6 +6,8 @@ import HistorySidebar from './components/HistorySidebar';
 import Button from './components/Button';
 import TutorialModal from './components/TutorialModal';
 import InstallModal from './components/InstallModal';
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
 import { 
   Menu, Sparkles, Copy, Check, Download, Settings2, Lightbulb, HelpCircle,
   FileText, Server, Layout, ListChecks, Code2, Database, Workflow, Brain, 
@@ -432,8 +433,9 @@ export default function App() {
 
   const handleDownloadPDF = async () => {
     setIsDownloadingPDF(true);
-    if (typeof (window as any).html2pdf === 'undefined') {
-      alert("Biblioteka PDF nie została jeszcze załadowana. Sprawdź połączenie internetowe i spróbuj ponownie.");
+    // Use imported module
+    if (!html2pdf) {
+      alert("Biblioteka PDF nie została jeszcze załadowana.");
       setIsDownloadingPDF(false);
       return;
     }
@@ -475,7 +477,7 @@ export default function App() {
         pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
-      await (window as any).html2pdf().set(opt).from(clone).save();
+      await html2pdf().set(opt).from(clone).save();
       document.body.removeChild(clone);
     } catch (e) {
       console.error("PDF Export Error", e);

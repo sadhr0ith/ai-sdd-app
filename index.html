@@ -6,8 +6,6 @@
     <title>SpecAI Kit</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -94,18 +92,21 @@
   <script type="importmap">
 {
   "imports": {
+    "vite": "https://aistudiocdn.com/vite@^7.2.6",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
     "react/": "https://aistudiocdn.com/react@^19.2.1/",
     "react": "https://aistudiocdn.com/react@^19.2.1",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "vite": "https://aistudiocdn.com/vite@^7.2.6"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "mermaid": "https://aistudiocdn.com/mermaid@^11.12.2",
+    "html2pdf.js": "https://aistudiocdn.com/html2pdf.js@^0.12.1"
   }
 }
 </script>
 </head>
   <body class="bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
