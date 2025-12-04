@@ -1,0 +1,5 @@
+{
+  "name": "SpecAI Kit",
+  "description": "An AI-powered technical specification generator inspired by Spec Kit. Generate PRDs, Component Specs, and Engineering Design Docs instantly using Gemini.",
+  "requestFramePermissions": []
+}
